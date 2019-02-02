@@ -7,15 +7,14 @@ function [data_train, data_query] = getData(MODE, nClusters, showImg)
 %   3. Toy_Circle
 %   4. Caltech 101
 
-% showImg = 1; % Show training & testing images and their image feature vector (histogram representation)
-
-PHOW_Sizes = [4 8 10]; % Multi-resolution, these values determine the scale of each layer.
-PHOW_Step = 8; % The lower the denser. Select from {2,4,8,16}
+% Multi-resolution, these values determine the scale of each layer
+PHOW_Sizes = [4 8 10]; 
+% The lower the denser. Select from {2,4,8,16}
+PHOW_Step = 8; 
 
 switch MODE
-    case 'Toy_Gaussian' % Gaussian distributed 2D points
-        %rand('state', 0);
-        %randn('state', 0);
+    case 'Toy_Gaussian' 
+        % Gaussian distributed 2D points
         N= 150;
         D= 2;
         
@@ -79,7 +78,7 @@ switch MODE
         
     case 'Caltech' % Caltech dataset
         %% Training data: Feature detection and descriptors extraction
-        % randomly select 15 images each class without replacement. (For both training & testing)
+        % randomly select 15 images each class without replacement for training and testing
         imgSel = [15 15]; 
         folderName = './Caltech_101/101_ObjectCategories';
         classList = dir(folderName);
@@ -87,12 +86,13 @@ switch MODE
         classList = {classList(3:end).name};
         % number of classes
         nClasses = length(classList);
-        % number of samples per class
-        nSamples = imgSel(1);
+        % number of samples for train and test per class
+        nSamplesTrain = imgSel(1);
+        nSamplesTest = imgSel(2);
         % initialisation
         imgIdx = cell(nClasses, 1);
-        descTrain = cell(nClasses, nSamples);
-        imgIdxTrain = zeros(nClasses, nSamples);
+        descTrain = cell(nClasses, nSamplesTrain);
+        imgIdxTrain = zeros(nClasses, nSamplesTrain);
         
         disp('Loading training images...')
         for iClass = 1: nClasses
@@ -101,9 +101,9 @@ switch MODE
             imgList = dir(fullfile(subFolderName,'*.jpg'));
             % randomly choose images from the class
             imgIdx{iClass} = randperm(length(imgList));
-            % obtain image index
-            imgIdxTrain(iClass, :) = imgIdx{iClass}(1: nSamples);
-            for iSample = 1: nSamples
+            % obtain image index (first nSamplesTrain for training, next nSamplesTest for testing)
+            imgIdxTrain(iClass, :) = imgIdx{iClass}(1: nSamplesTrain);
+            for iSample = 1: nSamplesTrain
                 % read image
                 imgTrain = imread(fullfile(subFolderName,imgList(imgIdxTrain(iClass, iSample)).name));
                 % if the image is not in gray scale
@@ -117,7 +117,7 @@ switch MODE
         end
         
         disp('Building visual codebook...')
-        % Build visual vocabulary (codebook) for 'Bag-of-Words method': randomly select 100k SIFT descriptors for clustering
+        % build visual vocabulary (codebook) for 'Bag-of-Words method': randomly select 100k SIFT descriptors for clustering
         descSelect = single(vl_colsubset(cat(2,descTrain{:}), 1e4)); 
         %% K-means clustering
         % compute the centroids position
@@ -127,9 +127,9 @@ switch MODE
         %% Training data: assign patch descriptors to the visual codebook (vector quantisation)
         disp('Encoding training images...')
         % frequency of descriptors for train dataset (for histogram)
-        freqTrain = zeros(nClasses * nSamples, nClusters);
+        freqTrain = zeros(nClasses * nSamplesTrain, nClusters);
         % figures label
-        labelTrain = zeros(nClasses * nSamples, 1);
+        labelTrain = zeros(nClasses * nSamplesTrain, 1);
         for iClass = 1: nClasses
             % get image directory
             subFolderName = fullfile(folderName, classList{iClass});
@@ -138,26 +138,26 @@ switch MODE
                 figure;
                 suptitle('Training image representations: 256-D histograms');
             end
-            for iSample = 1: nSamples
-                % update current descriptor
+            for iSample = 1: nSamplesTrain
+                % update descriptors in current image
                 descCurr = single(descTrain{iClass, iSample});
                 % categorise by KNN based on obtained centroids
                 indexTrain = knnsearch(centroid, descCurr');
-                % compute frequency of centroids for histogram
-                freqTrain((iClass - 1) * nSamples + iSample, :) = histcounts(indexTrain, nClusters) / length(indexTrain);
+                % compute frequency of clusters for histogram
+                freqTrain((iClass - 1) * nSamplesTrain + iSample, :) = histcounts(indexTrain, nClusters) / length(indexTrain);
                 % display training images and corresponding histograms
                 if showImg
                     I = imread(fullfile(subFolderName, imgList(imgIdxTrain(iClass, iSample)).name));
-                    subplot(ceil(nSamples / 3), 6 ,2 * iSample - 1);
+                    subplot(ceil(nSamplesTrain / 3), 6 ,2 * iSample - 1);
                     imshow(I);
-                    subplot(ceil(nSamples / 3), 6 ,2 * iSample);
+                    subplot(ceil(nSamplesTrain / 3), 6 ,2 * iSample);
                     histogram(indexTrain, nClusters);
                     xlim([0 nClusters + 1]);
                     drawnow;
                 end
             end
             % update corresponding labels
-            labelTrain((iClass - 1) * nSamples + 1: iClass * nSamples) = ones(nSamples, 1) * iClass;
+            labelTrain((iClass - 1) * nSamplesTrain + 1: iClass * nSamplesTrain) = ones(nSamplesTrain, 1) * iClass;
         end
         % label the training data
         data_train = [freqTrain, labelTrain];
@@ -168,8 +168,8 @@ end
 switch MODE
     case 'Caltech'
         % initialisation
-        descTest = cell(nClasses, nSamples);
-        imgIdxTest = zeros(nClasses, nSamples);
+        descTest = cell(nClasses, nSamplesTest);
+        imgIdxTest = zeros(nClasses, nSamplesTest);
         
         disp('Loading testing images...')
         for iClass = 1: nClasses
@@ -178,9 +178,9 @@ switch MODE
             imgList = dir(fullfile(subFolderName,'*.jpg'));
             % randomly choose images from the class
             imgIdx{iClass} = randperm(length(imgList));
-            % obtain image index
-            imgIdxTest(iClass, :) = imgIdx{iClass}(nSamples + 1: sum(imgSel));
-            for iSample = 1: nSamples
+            % obtain image index (first nSamplesTrain for training, next nSamplesTest for testing)
+            imgIdxTest(iClass, :) = imgIdx{iClass}(nSamplesTrain + 1: nSamplesTrain + nSamplesTest);
+            for iSample = 1: nSamplesTest
                 % read image
                 imgTest = imread(fullfile(subFolderName,imgList(imgIdxTest(iClass, iSample)).name));
                 % if the image is not in gray scale
@@ -196,7 +196,7 @@ switch MODE
         %% Testing data: assign patch descriptors to the visual codebook (vector quantisation)
         disp('Analysing testing images...')
         % frequency of descriptors for testing dataset (for histogram)
-        freqTest = zeros(nClasses * nSamples, nClusters);
+        freqTest = zeros(nClasses * nSamplesTest, nClusters);
         % Assign patch descriptors to the visual codebook (vector quantisation)
         for iClass = 1: nClasses
             subFolderName = fullfile(folderName, classList{iClass});
@@ -206,19 +206,19 @@ switch MODE
                 figure;
                 suptitle('Testing image representations: 256-D histograms');
             end
-            for iSample = 1: nSamples
+            for iSample = 1: nSamplesTest
                 % update current descriptor
                 descCurr = single(descTest{iClass, iSample});
                 % categorise by KNN based on obtained centroids
                 indexTest = knnsearch(centroid, descCurr');
-                % compute frequency of centroids for histogram
-                freqTest((iClass - 1) * nSamples + iSample, :) = histcounts(indexTest, nClusters) / length(indexTest);
+                % compute frequency of clusters for histogram
+                freqTest((iClass - 1) * nSamplesTest + iSample, :) = histcounts(indexTest, nClusters) / length(indexTest);
                 % display testing images and corresponding histograms
                 if showImg
                     I = imread(fullfile(subFolderName, imgList(imgIdxTest(iClass, iSample)).name));
-                    subplot(ceil(nSamples / 3), 6 ,2 * iSample - 1);
+                    subplot(ceil(nSamplesTest / 3), 6 ,2 * iSample - 1);
                     imshow(I);
-                    subplot(ceil(nSamples / 3), 6 ,2 * iSample);
+                    subplot(ceil(nSamplesTest / 3), 6 ,2 * iSample);
                     histogram(indexTest, nClusters);
                     xlim([0 nClusters + 1]);
                     drawnow;
@@ -226,11 +226,12 @@ switch MODE
             end
         end
         % label the testing data (with zeros)
-        data_query = [freqTest, zeros(nClasses * nSamples, 1)];
+        data_query = [freqTest, zeros(nClasses * nSamplesTest, 1)];
         % clear unused varibles to save memory
         clearvars descTest descSelect
         
-    otherwise % Dense point for 2D toy data
+    otherwise
+        % Dense point for 2D toy data
         xrange = [-1.5 1.5];
         yrange = [-1.5 1.5];
         inc = 0.02;
