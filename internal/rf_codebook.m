@@ -69,17 +69,17 @@ for iClass = 1: nClasses
         labelTrain = ones(1, size(descTrain{iClass, iSample}, 2)) * iClass;
         descTrain{iClass, iSample} = [descTrain{iClass, iSample}; labelTrain];
     end
-%     for iSample = 1: nSamplesTest
-%         % read image
-%         imgTest = imread(fullfile(subFolderName,imgList(imgIdxTest(iClass, iSample)).name));
-%         % if the image is not in gray scale
-%         if size(imgTest,3) == 3
-%             % PHOW work on gray scale image
-%             imgTest = rgb2gray(imgTest);
-%         end
-%         % obtain testing descriptors
-%         [~, descTest{iClass, iSample}] = vl_phow(single(imgTest),'Sizes',PHOW_Sizes,'Step',PHOW_Step); %  extracts PHOW features (multi-scaled Dense SIFT)
-%     end
+    for iSample = 1: nSamplesTest
+        % read image
+        imgTest = imread(fullfile(subFolderName,imgList(imgIdxTest(iClass, iSample)).name));
+        % if the image is not in gray scale
+        if size(imgTest,3) == 3
+            % PHOW work on gray scale image
+            imgTest = rgb2gray(imgTest);
+        end
+        % obtain testing descriptors
+        [~, descTest{iClass, iSample}] = vl_phow(single(imgTest),'Sizes',PHOW_Sizes,'Step',PHOW_Step); %  extracts PHOW features (multi-scaled Dense SIFT)
+    end
 end
 %% Build visual codebook
 disp('Building visual codebook...')
@@ -87,13 +87,14 @@ disp('Building visual codebook...')
 descSelect = single(vl_colsubset(cat(2,descTrain{:}), 1e4));
 %% Grow the forest
 forest = growTrees(descSelect', param);
+% number of trees
 nTrees = length(forest);
+% number of clusters
+nClusters = size(forest(1).prob,1);
 %% Training data: assign patch descriptors to the visual codebook (vector quantisation)
 disp('Encoding training images...')
-% % frequency of descriptors for train dataset (for histogram)
-% freqTrain = zeros(nClasses * nSamplesTrain, nClusters);
-% % figures label
-% labelTrain = zeros(nClasses * nSamplesTrain, 1);
+% frequency of descriptors for train dataset (for histogram)
+freqTrain = zeros(nClasses * nSamplesTrain, nClusters);
 for iClass = 1: nClasses
     % get image directory
     subFolderName = fullfile(folderName, classList{iClass});
@@ -107,12 +108,9 @@ for iClass = 1: nClasses
         descCurr = single(descTrain{iClass, iSample});
         % number of descriptors in current image
         nDescs = size(descCurr, 2);
-        % number of clusters
-        nClusters = size(forest(1).prob,1);
-        % frequency of descriptors for train dataset (for histogram)
-        freqTrain = zeros(nClasses * nSamplesTrain, nClusters);
         % decision on leaves
         indexTrain = zeros(nDescs, nTrees);
+        % obtain the leaf index that the descriptor belongs to
         for iDesc = 1: nDescs
             indexTrain(iDesc, :) = testTrees_fast(descCurr(1: end - 1, iDesc)', forest);
         end
@@ -132,6 +130,50 @@ for iClass = 1: nClasses
     % update corresponding labels
     labelTrain((iClass - 1) * nSamplesTrain + 1: iClass * nSamplesTrain) = ones(nSamplesTrain, 1) * iClass;
 end
-
+% label the training data
+data_train = [freqTrain, labelTrain];
+% clear unused varibles to save memory
+clearvars descTrain descSelect
+%% Testing data: assign patch descriptors to the visual codebook (vector quantisation)
+disp('Analysing testing images...')
+% frequency of descriptors for train dataset (for histogram)
+freqTest = zeros(nClasses * nSamplesTest, nClusters);
+for iClass = 1: nClasses
+    subFolderName = fullfile(folderName, classList{iClass});
+    % get image directory
+    imgList = dir(fullfile(subFolderName, '*.jpg'));
+    if showImg
+        figure;
+        suptitle('Testing image representations: 256-D histograms');
+    end
+    for iSample = 1: nSamplesTest
+        % update current descriptor
+        descCurr = single(descTest{iClass, iSample});
+        % number of descriptors in current image
+        nDescs = size(descCurr, 2);
+        % decision on leaves
+        indexTest = zeros(nDescs, nTrees);
+        % obtain the leaf index that the descriptor belongs to
+        for iDesc = 1: nDescs
+            indexTest(iDesc, :) = testTrees_fast(descCurr(1: end - 1, iDesc)', forest);
+        end
+        % compute frequency of clusters for histogram
+        freqTest((iClass - 1) * nSamplesTest + iSample, :) = histcounts(indexTest, nClusters) / nDescs;
+        % display training images and corresponding histograms
+        if showImg
+            I = imread(fullfile(subFolderName, imgList(imgIdxTest(iClass, iSample)).name));
+            subplot(ceil(nSamplesTest / 3), 6 ,2 * iSample - 1);
+            imshow(I);
+            subplot(ceil(nSamplesTest / 3), 6 ,2 * iSample);
+            histogram(indexTest, nClusters);
+            xlim([0 nClusters + 1]);
+            drawnow;
+        end
+    end
+end
+% label the testing data (with zeros)
+data_query = [freqTest, zeros(nClasses * nSamplesTest, 1)];
+% clear unused varibles to save memory
+clearvars descTest descCurr
 end
 

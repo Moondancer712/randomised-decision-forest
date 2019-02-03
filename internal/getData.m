@@ -192,7 +192,6 @@ switch MODE
                 [~, descTest{iClass, iSample}] = vl_phow(single(imgTest),'Sizes',PHOW_Sizes,'Step',PHOW_Step); %  extracts PHOW features (multi-scaled Dense SIFT)
             end
         end
-        
         %% Testing data: assign patch descriptors to the visual codebook (vector quantisation)
         disp('Analysing testing images...')
         % frequency of descriptors for testing dataset (for histogram)
@@ -228,8 +227,7 @@ switch MODE
         % label the testing data (with zeros)
         data_query = [freqTest, zeros(nClasses * nSamplesTest, 1)];
         % clear unused varibles to save memory
-        clearvars descTest descSelect
-        
+        clearvars descTest descCurr
     otherwise
         % Dense point for 2D toy data
         xrange = [-1.5 1.5];
