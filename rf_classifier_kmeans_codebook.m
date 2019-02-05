@@ -10,10 +10,14 @@ rf.split = 'IG';
 rf.num = 50;
 %% Initialisation
 % show decision histogram or not
-showHist = 1;
+showHist = 0;
 % showImg: show image or not
 showImg = 0;
 % number of clusters (size of codebook)
 nClusters = 256;
 %% Obtain codebook by K-means
-[data_train, data_query] = getData('Caltech', nClusters, showImg);
+[dataTrain, dataQuery, nClasses] = getData('Caltech', nClusters, showImg);
+%% Build random forest by training data and predetermined parameters
+forest = growTrees(dataTrain, rf);
+%% Classify the training data by random forest
+[accuTrain, confTrain] = rf_classification(nClasses, dataTrain, forest, showHist);

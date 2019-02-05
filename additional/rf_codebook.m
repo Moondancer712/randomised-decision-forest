@@ -1,4 +1,4 @@
-function [data_train, data_query] = rf_codebook(param, showImg)
+function [dataTrain, dataQuery] = rf_codebook(param, showImg)
 % Function:
 %   - generate visual codebook by randomised decision forest
 %
@@ -11,8 +11,8 @@ function [data_train, data_query] = rf_codebook(param, showImg)
 %   - showImg: show image or not
 %
 % OutputArg(s):
-%   - data_train: vectorised training data with label
-%   - data_query: vectorised test data without label
+%   - dataTrain: vectorised training data with label
+%   - dataQuery: vectorised test data without label
 %
 % Restraints:
 %   - the split function only supports information gain so far
@@ -131,7 +131,7 @@ for iClass = 1: nClasses
     labelTrain((iClass - 1) * nSamplesTrain + 1: iClass * nSamplesTrain) = ones(nSamplesTrain, 1) * iClass;
 end
 % label the training data
-data_train = [freqTrain, labelTrain];
+dataTrain = [freqTrain, labelTrain];
 % clear unused varibles to save memory
 clearvars descTrain descSelect
 %% Testing data: assign patch descriptors to the visual codebook (vector quantisation)
@@ -172,7 +172,7 @@ for iClass = 1: nClasses
     end
 end
 % label the testing data (with zeros)
-data_query = [freqTest, zeros(nClasses * nSamplesTest, 1)];
+dataQuery = [freqTest, zeros(nClasses * nSamplesTest, 1)];
 % clear unused varibles to save memory
 clearvars descTest descCurr
 end

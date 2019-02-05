@@ -1,4 +1,4 @@
-function [data_train, data_query] = getData(MODE, nClusters, showImg)
+function [dataTrain, dataQuery, nClasses] = getData(MODE, nClusters, showImg)
 % Generate training and testing data
 
 % Data Options:
@@ -30,7 +30,7 @@ switch MODE
         X= bsxfun(@rdivide, bsxfun(@minus, X, mean(X)), var(X));
         Y= [ones(N, 1); ones(N, 1)*2; ones(N, 1)*3];
         
-        data_train = [X Y];
+        dataTrain = [X Y];
         
     case 'Toy_Spiral' % Spiral (from Karpathy's matlab toolbox)
         
@@ -51,7 +51,7 @@ switch MODE
         X= bsxfun(@rdivide, bsxfun(@minus, X, mean(X)), var(X));
         Y= [ones(N, 1); ones(N, 1)*2; ones(N, 1)*3];
         
-        data_train = [X Y];
+        dataTrain = [X Y];
         
     case 'Toy_Circle' % Circle
         
@@ -74,7 +74,7 @@ switch MODE
         X= [[x' y']; [x2' y2']; [x3' y3']];
         Y= [ones(N, 1); ones(N, 1)*2; ones(N, 1)*3];
         
-        data_train = [X Y];
+        dataTrain = [X Y];
         
     case 'Caltech' % Caltech dataset
         %% Initialisation
@@ -88,6 +88,8 @@ switch MODE
         classList = dir(folderName);
         % choose classes
         classList = {classList(3:end).name};
+        % number of classes
+        nClasses = length(classList);
         %% Training data: feature detection and descriptors extraction
         type = 'train';
         disp('Loading training images...')
@@ -102,7 +104,7 @@ switch MODE
         centroid = centroid';
         %% Training data: assign patch descriptors to the visual codebook (vector quantisation)
         disp('Encoding training images...')
-        [data_train] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxTrain, centroid, descTrain, type, showImg);
+        [dataTrain] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxTrain, centroid, descTrain, type, showImg);
 end
 switch MODE
     case 'Caltech'
@@ -112,14 +114,14 @@ switch MODE
         [descTest, imgIdxTest] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, type);
         %% Testing data: assign patch descriptors to the visual codebook (vector quantisation)
         disp('Analysing testing images...')
-        [data_query] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxTest, centroid, descTest, type, showImg);
+        [dataQuery] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxTest, centroid, descTest, type, showImg);
     otherwise
         % Dense point for 2D toy data
         xrange = [-1.5 1.5];
         yrange = [-1.5 1.5];
         inc = 0.02;
         [x, y] = meshgrid(xrange(1):inc:xrange(2), yrange(1):inc:yrange(2));
-        data_query = [x(:) y(:) zeros(length(x)^2,1)];
+        dataQuery = [x(:) y(:) zeros(length(x)^2,1)];
 end
 end
 
