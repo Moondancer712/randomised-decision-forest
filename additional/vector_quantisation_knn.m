@@ -7,7 +7,7 @@ function [data] = vector_quantisation_knn(classList, folderName, nSamples, nClus
 %   - classList: the classes (labels) of the image set
 %   - folderName: the directory of the image set
 %   - nSamples: number of images per class
-%   - nClusters: number of clusters in KNN method
+%   - nClusters: number of clusters or dimensions in KNN method
 %   - imgIdxSet: the image index set
 %   - centroid: the centers of descriptors of different categories
 %   - descriptor: base elements to describe an image

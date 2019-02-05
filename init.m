@@ -6,6 +6,7 @@ close all;
 % addpaths
 addpath('./internal');
 addpath('./external');
+addpath('./additional');
 addpath('./external/libsvm-3.18/matlab');
 
 % initialise external libraries
