@@ -13,10 +13,12 @@ rf.num = 50;
 showHist = false;
 % whether to show image
 showImg = false;
+% whether to show confusion matrix
+showConf = true;
 % number of clusters (size of codebook)
 nClusters = 256;
 % size of descriptors for clustering
-nDescriptors = 1e4;
+nDescriptors = 1e5;
 % number of samples for train and test per class without
 % replacement (assume equal)
 nSamples = 15;
@@ -24,7 +26,7 @@ nSamples = 15;
 folderName = './Caltech_101/101_ObjectCategories';
 classList = dir(folderName);
 % choose classes
-classList = {classList(3:end).name};
+classList = {classList(3: end).name};
 % number of image classes
 nClasses = length(classList);
 % multi-resolution (values determine the scale of each layer)
@@ -36,6 +38,6 @@ phowStep = 8;
 %% Build random forest by training data and predetermined parameters
 forest = growTrees(dataTrain, rf);
 %% Classify the training data by random forest
-[accuTrain, confTrain] = classification(nClasses, dataTrain, forest, showHist);
+[accuTrain, confTrain] = classification(nClasses, dataTrain, forest, showHist, showConf);
 %% Classify the testing data by random forest
-[accuTest, confTest] = classification(nClasses, dataQuery, forest, showHist);
+[accuTest, confTest] = classification(nClasses, dataQuery, forest, showHist, showConf);

@@ -1,4 +1,4 @@
-function [accuracy, confMat] = classification(nClasses, data, forest, showHist)
+function [accuracy, confMat] = classification(nClasses, data, forest, showHist, showConf)
 % Function:
 %   - classify the data based on random forest method
 %
@@ -7,6 +7,7 @@ function [accuracy, confMat] = classification(nClasses, data, forest, showHist)
 %   - data: vectorised data with or without label
 %   - forest: random forest build on training data
 %   - showHist: show histogram or not
+%   - showConf: show confusion matrix or not
 %
 % OutputArg(s):
 %   - accuracy: the correct rate of classification
@@ -59,5 +60,10 @@ end
 % accuracy matrix for every class
 accuMat = crtCounter / nSamples;
 accuracy = mean(accuMat);
+if showConf
+    % show confusion matrix
+    imagesc(confMat) ;
+    title(sprintf('Confusion matrix (%.2f %% accuracy)', 100 * accuracy) ) ;
+end
 end
 
