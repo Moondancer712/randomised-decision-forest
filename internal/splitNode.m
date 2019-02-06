@@ -16,7 +16,7 @@ end
 
 idx = node.idx;
 data = data(idx,:);
-[N,D] = size(data);
+[~,D] = size(data);
 ig_best = -inf; % Initialise best information gain
 idx_best = [];
 for n = 1:iter
@@ -36,7 +36,7 @@ for n = 1:iter
         pause();
     end
     
-    if (sum(idx_) > 0 & sum(~idx_) > 0) % We check that children node are not empty
+    if (sum(idx_) > 0 && sum(~idx_) > 0) % We check that children node are not empty
         [node, ig_best, idx_best] = updateIG(node,ig_best,ig,t,idx_,dim,idx_best);
     end
     
@@ -75,7 +75,7 @@ if ig > ig_best
     node.t = t;
     node.dim = dim;
     idx_best = idx;
-else
-    idx_best = idx_best;
+% else
+%     idx_best = idx_best;
 end
 end
