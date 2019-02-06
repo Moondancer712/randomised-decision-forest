@@ -35,9 +35,12 @@ nClasses = length(classList);
 %% Training data: feature detection and descriptors extraction
 type = 'train';
 disp('Loading training images...');
+tic;
 [descTrain, imgIdxTrain] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, type);
+toc;
 %% Build visual vocabulary (codebook) for 'Bag-of-Words' method
-disp('Building visual codebook...')
+disp('Building visual codebook...');
+tic;
 descSel = cell(nClasses, 1);
 % randomly select SIFT descriptors for clustering
 for iClass = 1: nClasses
@@ -46,22 +49,32 @@ for iClass = 1: nClasses
 end
 % combine subsets
 descSel = cat(2, descSel{:});
+toc;
 %% Grow the forest
+disp('Clustering data by random forest...');
+tic;
 % develop RF based on selected descriptors and predetermined parameters
 forest = growTrees(descSel', rf);
 % number of clusters
 nClusters = size(forest(1).prob,1);
+toc;
 %% Training data: assign patch descriptors to the visual codebook (vector quantisation)
-disp('Encoding training images...');
 type = 'train';
+disp('Encoding training images...');
+tic;
 [dataTrain] = vector_quantisation_rf(classList, folderName, nSamples, nClusters, imgIdxTrain, forest, descTrain, type, showImg);
+toc;
 %% Testing data: feature detection and descriptors extraction
 type = 'test';
 disp('Loading testing images...');
+tic;
 [descTest, imgIdxTest] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, type);
+toc;
 %% Testing data: assign patch descriptors to the visual codebook (vector quantisation)
-disp('Encoding testing images...');
 type = 'test';
+disp('Encoding testing images...');
+tic;
 [dataQuery] = vector_quantisation_rf(classList, folderName, nSamples, nClusters, imgIdxTest, forest, descTest, type, showImg);
+toc;
 end
 

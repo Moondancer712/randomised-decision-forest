@@ -1,7 +1,7 @@
-clear; close all;
-%% the parameters of RF (for each tree)
+clear; close all; clc; ticRf = tic;
+%% Parameters of RF (for each tree)
 % number of candidate weak learners 
-rf.splitNum = 10;
+rf.splitNum = 5;
 % number of layers
 rf.depth = 5;
 % criteria in split decision (information gain)
@@ -15,8 +15,6 @@ showHist = false;
 showImg = false;
 % whether to show confusion matrix
 showConf = true;
-% number of clusters (size of codebook)
-nClusters = 256;
 % size of descriptors for clustering
 nDescriptors = 1e5;
 % number of samples for train and test per class without
@@ -34,10 +32,33 @@ phowSize = [4 8 10];
 % step size (the lower the denser, select from {2, 4, 8, 16})
 phowStep = 8;
 %% Obtain codebook by random forest
+disp('Obtaining codebook by random forest...');
+disp('--------------------------------------------------');
+tic;
 [dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folderName, classList, phowSize, phowStep, showImg);
+disp('--------------------------------------------------');
+toc;
 %% Build random forest by training data and predetermined parameters
+disp('==================================================');
+disp('Building random forest...');
+tic;
 forest = growTrees(dataTrain, rf);
+toc;
 %% Classify the training data by random forest
+disp('==================================================');
+disp('Classifying training data...');
+tic;
 [accuTrain, confTrain] = classification(nClasses, dataTrain, forest, showHist, showConf);
+toc;
+fprintf('The accuracy for training data is %.2f %%.\n', 100 * accuTrain);
 %% Classify the testing data by random forest
+disp('==================================================');
+disp('Classifying testing data...');
+tic;
 [accuTest, confTest] = classification(nClasses, dataQuery, forest, showHist, showConf);
+toc;
+fprintf('The accuracy for testing data is %.2f %%.\n', 100 * accuTest);
+%% Elapsed time
+disp('==================================================');
+tocRf = toc(ticRf);
+fprintf('The overall time cost is %f seconds.\n', tocRf);

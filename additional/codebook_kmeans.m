@@ -29,10 +29,13 @@ function [dataTrain, dataQuery] = codebook_kmeans(nClusters, nDescriptors, nSamp
 nClasses = length(classList);
 %% Training data: feature detection and descriptors extraction
 type = 'train';
-disp('Loading training images...')
+disp('Loading training images...');
+tic;
 [descTrain, imgIdxTrain] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, type);
+toc;
 %% Build visual vocabulary (codebook) for 'Bag-of-Words' method
-disp('Building visual codebook...')
+disp('Building visual codebook...');
+tic;
 descSel = cell(nClasses, 1);
 % randomly select SIFT descriptors for clustering
 for iClass = 1: nClasses
@@ -41,19 +44,29 @@ for iClass = 1: nClasses
 end
 % combine subsets
 descSel = cat(2, descSel{:});
+toc;
 %% K-means clustering
+disp('Clustering data by K-means...');
+tic;
 % compute the centroids position
 [centroid, ~] = vl_kmeans(descSel, nClusters);
 centroid = centroid';
+toc;
 %% Training data: assign patch descriptors to the visual codebook (vector quantisation)
-disp('Encoding training images...')
+type = 'train';
+disp('Encoding training images...');
+tic;
 [dataTrain] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxTrain, centroid, descTrain, type, showImg);
+toc;
 %% Testing data: feature detection and descriptors extraction
 type = 'test';
-disp('Loading testing images...')
+disp('Loading testing images...');
+tic;
 [descTest, imgIdxTest] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, type);
+toc;
 %% Testing data: assign patch descriptors to the visual codebook (vector quantisation)
-disp('Encoding testing images...')
+type = 'test';
+disp('Encoding testing images...');
 [dataQuery] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxTest, centroid, descTest, type, showImg);
 end
 
