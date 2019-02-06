@@ -1,4 +1,4 @@
-function tree = growtrees(data,param)
+function tree = growTrees(data,param)
 
 %        Base               Each node stores:
 %         1                   trees.idx       - data (index only) which split into this node

@@ -1,4 +1,4 @@
-function [accuracy, confMat] = rf_classification(nClasses, data, forest, showHist)
+function [accuracy, confMat] = classification(nClasses, data, forest, showHist)
 % Function:
 %   - classify the data based on random forest method
 %
