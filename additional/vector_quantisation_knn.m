@@ -1,4 +1,4 @@
-function [data] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxSet, centroid, descriptor, type, showImg)
+function [data] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxSet, centroid, descriptor, dataType, showImg)
 % Function:
 %   - assign patch descriptors to the visual codebook by k-nearest
 %   neighbors algorithm
@@ -11,7 +11,7 @@ function [data] = vector_quantisation_knn(classList, folderName, nSamples, nClus
 %   - imgIdxSet: the image index set
 %   - centroid: the centers of descriptors of different categories
 %   - descriptor: base elements to describe an image
-%   - type: data type (train or test)
+%   - dataType: data type (train or test)
 %   - showImg: whether to show images and histograms
 %
 % OutputArg(s):
@@ -55,7 +55,7 @@ for iClass = 1: nClasses
         end
     end
     % update corresponding labels
-    switch type
+    switch dataType
         case 'train'
             % label training data; leave blank for testing data
             label((iClass - 1) * nSamples + 1: iClass * nSamples) = ones(nSamples, 1) * iClass;

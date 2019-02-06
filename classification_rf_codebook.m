@@ -7,7 +7,7 @@ rf.depth = 5;
 % criteria in split decision (information gain)
 rf.split = 'IG';
 % number of trees
-rf.num = 50;
+rf.num = 10;
 %% Initialisation
 % show decision histogram or not
 showHist = false;
@@ -31,31 +31,34 @@ nClasses = length(classList);
 phowSize = [4 8 10];
 % step size (the lower the denser, select from {2, 4, 8, 16})
 phowStep = 8;
+% weak learner type
+% wlType = 'axis-aligned';
+wlType = '2-pixel';
 %% Obtain codebook by random forest
 disp('Obtaining codebook by random forest...');
 disp('--------------------------------------------------');
 tic;
-[dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folderName, classList, phowSize, phowStep, showImg);
+[dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folderName, classList, phowSize, phowStep, showImg, wlType);
 disp('--------------------------------------------------');
 toc;
 %% Build random forest by training data and predetermined parameters
 disp('==================================================');
 disp('Building random forest...');
 tic;
-forest = growTrees(dataTrain, rf);
+forest = growTrees(dataTrain, rf, wlType);
 toc;
 %% Classify the training data by random forest
 disp('==================================================');
 disp('Classifying training data...');
 tic;
-[accuTrain, confTrain] = classification(nClasses, dataTrain, forest, showHist, showConf);
+[accuTrain, confTrain] = classification(nClasses, dataTrain, forest, showHist, showConf, wlType);
 toc;
 fprintf('The accuracy for training data is %.2f %%.\n', 100 * accuTrain);
 %% Classify the testing data by random forest
 disp('==================================================');
 disp('Classifying testing data...');
 tic;
-[accuTest, confTest] = classification(nClasses, dataQuery, forest, showHist, showConf);
+[accuTest, confTest] = classification(nClasses, dataQuery, forest, showHist, showConf, wlType);
 toc;
 fprintf('The accuracy for testing data is %.2f %%.\n', 100 * accuTest);
 %% Elapsed time

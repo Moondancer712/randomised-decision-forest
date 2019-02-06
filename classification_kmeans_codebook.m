@@ -33,6 +33,9 @@ nClasses = length(classList);
 phowSize = [4 8 10];
 % step size (the lower the denser, select from {2, 4, 8, 16})
 phowStep = 8;
+% weak learner type
+% wlType = 'axis-aligned';
+wlType = '2-pixel';
 %% Obtain codebook by K-means
 disp('Obtaining codebook by K-means...');
 disp('--------------------------------------------------');
@@ -44,20 +47,20 @@ toc;
 disp('==================================================');
 disp('Building random forest...');
 tic;
-forest = growTrees(dataTrain, rf);
+forest = growTrees(dataTrain, rf, wlType);
 toc;
 %% Classify the training data by random forest
 disp('==================================================');
 disp('Classifying training data...');
 tic;
-[accuTrain, confTrain] = classification(nClasses, dataTrain, forest, showHist, showConf);
+[accuTrain, confTrain] = classification(nClasses, dataTrain, forest, showHist, showConf, wlType);
 toc;
 fprintf('The accuracy for training data is %.2f %%.\n', 100 * accuTrain);
 %% Classify the testing data by random forest
 disp('==================================================');
 disp('Classifying testing data...');
 tic;
-[accuTest, confTest] = classification(nClasses, dataQuery, forest, showHist, showConf);
+[accuTest, confTest] = classification(nClasses, dataQuery, forest, showHist, showConf, wlType);
 toc;
 fprintf('The accuracy for testing data is %.2f %%.\n', 100 * accuTest);
 %% Elapsed time

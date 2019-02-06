@@ -28,10 +28,10 @@ function [dataTrain, dataQuery] = codebook_kmeans(nClusters, nDescriptors, nSamp
 % number of classes
 nClasses = length(classList);
 %% Training data: feature detection and descriptors extraction
-type = 'train';
+dataType = 'train';
 disp('Loading training images...');
 tic;
-[descTrain, imgIdxTrain] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, type);
+[descTrain, imgIdxTrain] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, dataType);
 toc;
 %% Build visual vocabulary (codebook) for 'Bag-of-Words' method
 disp('Building visual codebook...');
@@ -53,20 +53,20 @@ tic;
 centroid = centroid';
 toc;
 %% Training data: assign patch descriptors to the visual codebook (vector quantisation)
-type = 'train';
+dataType = 'train';
 disp('Encoding training images...');
 tic;
-[dataTrain] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxTrain, centroid, descTrain, type, showImg);
+[dataTrain] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxTrain, centroid, descTrain, dataType, showImg);
 toc;
 %% Testing data: feature detection and descriptors extraction
-type = 'test';
+dataType = 'test';
 disp('Loading testing images...');
 tic;
-[descTest, imgIdxTest] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, type);
+[descTest, imgIdxTest] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, dataType);
 toc;
 %% Testing data: assign patch descriptors to the visual codebook (vector quantisation)
-type = 'test';
+dataType = 'test';
 disp('Encoding testing images...');
-[dataQuery] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxTest, centroid, descTest, type, showImg);
+[dataQuery] = vector_quantisation_knn(classList, folderName, nSamples, nClusters, imgIdxTest, centroid, descTest, dataType, showImg);
 end
 

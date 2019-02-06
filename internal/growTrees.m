@@ -1,4 +1,4 @@
-function tree = growTrees(data,param)
+function tree = growTrees(data,param,wlType)
 
 %        Base               Each node stores:
 %         1                   trees.idx       - data (index only) which split into this node
@@ -14,7 +14,7 @@ frac = 1 - 1/exp(1); % Bootstrap sampling fraction: 1 - 1/e (63.2%)
 
 cnt_total = 1;
 [labels,~] = unique(data(:,end));
-tree(param.num) = struct();
+% tree(param.num) = struct();
 for T = 1:param.num
     fprintf('Training tree: %i\n', T)
     % Bootstraping aggregating
@@ -26,7 +26,7 @@ for T = 1:param.num
     
     % Split Nodes
     for n = 1:2^(param.depth-1)-1
-        [tree(T).node(n),tree(T).node(n*2),tree(T).node(n*2+1)] = splitNode(data,tree(T).node(n),param);
+        [tree(T).node(n),tree(T).node(n*2),tree(T).node(n*2+1)] = splitNode(data,tree(T).node(n),param,wlType);
     end
     
     % Leaf Nodes

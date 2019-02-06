@@ -1,4 +1,4 @@
-function [dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folderName, classList, phowSize, phowStep, showImg)
+function [dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folderName, classList, phowSize, phowStep, showImg, wlType)
 % Function:
 %   - generate visual codebook by randomised decision forest
 %
@@ -16,6 +16,7 @@ function [dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folder
 %   - phowSize: values determine the scale of each layer
 %   - phowStep: step size (the lower the denser)
 %   - showImg: show image or not
+%   - wlType: type of the weak learner (now support 'axis-aligned' and '2-pixel' test)
 %
 % OutputArg(s):
 %   - dataTrain: vectorised training data with label
@@ -33,10 +34,10 @@ function [dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folder
 % number of classes
 nClasses = length(classList);
 %% Training data: feature detection and descriptors extraction
-type = 'train';
+dataType = 'train';
 disp('Loading training images...');
 tic;
-[descTrain, imgIdxTrain] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, type);
+[descTrain, imgIdxTrain] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, dataType);
 toc;
 %% Build visual vocabulary (codebook) for 'Bag-of-Words' method
 disp('Building visual codebook...');
@@ -54,27 +55,27 @@ toc;
 disp('Clustering data by random forest...');
 tic;
 % develop RF based on selected descriptors and predetermined parameters
-forest = growTrees(descSel', rf);
+forest = growTrees(descSel', rf, wlType);
 % number of clusters
 nClusters = size(forest(1).prob,1);
 toc;
 %% Training data: assign patch descriptors to the visual codebook (vector quantisation)
-type = 'train';
+dataType = 'train';
 disp('Encoding training images...');
 tic;
-[dataTrain] = vector_quantisation_rf(classList, folderName, nSamples, nClusters, imgIdxTrain, forest, descTrain, type, showImg);
+[dataTrain] = vector_quantisation_rf(classList, folderName, nSamples, nClusters, imgIdxTrain, forest, descTrain, dataType, showImg, wlType);
 toc;
 %% Testing data: feature detection and descriptors extraction
-type = 'test';
+dataType = 'test';
 disp('Loading testing images...');
 tic;
-[descTest, imgIdxTest] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, type);
+[descTest, imgIdxTest] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, dataType);
 toc;
 %% Testing data: assign patch descriptors to the visual codebook (vector quantisation)
-type = 'test';
+dataType = 'test';
 disp('Encoding testing images...');
 tic;
-[dataQuery] = vector_quantisation_rf(classList, folderName, nSamples, nClusters, imgIdxTest, forest, descTest, type, showImg);
+[dataQuery] = vector_quantisation_rf(classList, folderName, nSamples, nClusters, imgIdxTest, forest, descTest, dataType, showImg, wlType);
 toc;
 end
 

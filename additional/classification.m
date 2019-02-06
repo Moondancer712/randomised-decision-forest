@@ -1,4 +1,4 @@
-function [accuracy, confMat] = classification(nClasses, data, forest, showHist, showConf)
+function [accuracy, confMat] = classification(nClasses, data, forest, showHist, showConf, wlType)
 % Function:
 %   - classify the data based on random forest method
 %
@@ -8,6 +8,8 @@ function [accuracy, confMat] = classification(nClasses, data, forest, showHist, 
 %   - forest: random forest build on training data
 %   - showHist: show histogram or not
 %   - showConf: show confusion matrix or not
+%   - wlType: type of the weak learner (now support 'axis-aligned' and 
+%    '2-pixel' test)
 %
 % OutputArg(s):
 %   - accuracy: the correct rate of classification
@@ -34,7 +36,7 @@ for iClass = 1: nClasses
         suptitle(sprintf('Estimated distribution for class %d', iClass));
     end
     for iSample = 1: nSamples
-        leafIdx = testTrees_fast(data((iClass - 1) * nSamples + iSample, 1: end - 1), forest);
+        leafIdx = testTrees_fast(data((iClass - 1) * nSamples + iSample, 1: end - 1), forest, wlType);
         % probability of corresponding leaves
         probLeaf = forest(1).prob(leafIdx, :);
         % compute the class probability based on judgements by leaves

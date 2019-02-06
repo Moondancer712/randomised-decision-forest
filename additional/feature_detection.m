@@ -1,4 +1,4 @@
-function [descriptor, imgIdxSet] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, type)
+function [descriptor, imgIdxSet] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, dataType)
 % Function:
 %   - detect class features and extract numerous desctriptors
 %
@@ -8,7 +8,7 @@ function [descriptor, imgIdxSet] = feature_detection(classList, folderName, nSam
 %   - nSamples: number of images per class
 %   - phowSize: determine the scale of each layer
 %   - phowStep: the lower the denser, select from {2,4,8,16}
-%   - type: data type (train or test)
+%   - dataType: data type (train or test)
 %
 % OutputArg(s):
 %   - descriptor: base elements to describe an image
@@ -32,7 +32,7 @@ for iClass = 1: nClasses
     % randomly choose images from the class
     imgIdx{iClass} = randperm(length(imgList));
     % obtain image index (first nSamples for training, next nSamples for testing)
-    switch type
+    switch dataType
         case 'train'
             imgIdxSet(iClass, :) = imgIdx{iClass}(1: nSamples);
         otherwise
