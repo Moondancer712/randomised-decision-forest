@@ -1,4 +1,4 @@
-function [descriptor, imgIdxSet] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, dataType)
+function [descriptor, imgIdxSet] = feature_detection(classList, folderName, nSamples, dataType, descType)
 % Function:
 %   - detect class features and extract numerous desctriptors
 %
@@ -6,9 +6,8 @@ function [descriptor, imgIdxSet] = feature_detection(classList, folderName, nSam
 %   - classList: the classes (labels) of the image set
 %   - folderName: the directory of the image set
 %   - nSamples: number of images per class
-%   - phowSize: determine the scale of each layer
-%   - phowStep: the lower the denser, select from {2,4,8,16}
 %   - dataType: data type (train or test)
+%   - descType: criteria for obtaining descriptors
 %
 % OutputArg(s):
 %   - descriptor: base elements to describe an image
@@ -47,7 +46,23 @@ for iClass = 1: nClasses
             img = rgb2gray(img);
         end
         % obtain training or testing descriptors
-        [~, descriptor{iClass, iSample}] = vl_phow(single(img), 'Sizes', phowSize, 'Step', phowStep);
+        switch descType.name
+            case 'sift'
+                [~, descriptor{iClass, iSample}] = vl_sift(single(img));
+            case 'dsift'
+                [~, descriptor{iClass, iSample}] = vl_dsift(single(img));
+            case 'covdet'
+                [~, descriptor{iClass, iSample}] = vl_covdet(single(img));
+            case 'phow'
+                % PHOW
+                phowSize = descType.size;
+                phowStep = descType.step;
+                [~, descriptor{iClass, iSample}] = vl_phow(single(img), 'Sizes', phowSize, 'Step', phowStep);
+            otherwise
+                % mode not supported yet
+                error('Entered mode not supported yet.');
+        end
+
     end
 end
 end

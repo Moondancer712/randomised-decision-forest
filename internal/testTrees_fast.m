@@ -30,7 +30,7 @@ switch wlType
         for T = 1:length(tree)
             idx{1} = 1:size(data,1);
             for n = 1:length(tree(T).node)
-                isLeaf = ~tree(T).node(n).dim(1);
+                isLeaf = ~tree(T).node(n).dim;
                 if isLeaf
                     leaf_idx = tree(T).node(n).leaf_idx;
                     if ~isempty(tree(T).leaf(leaf_idx))

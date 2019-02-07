@@ -29,10 +29,19 @@ classList = dir(folderName);
 classList = {classList(3: end).name};
 % number of image classes
 nClasses = length(classList);
+% criteria for obtaining descriptors
+% SIFT is to detect and describe local features in images
+% descType.name = 'sift';
+% extracts a dense set of SIFT features from image
+% descType.name = 'dsift';
+% detects upright scale and translation covariant features based on the Difference of Gaussian (DoG) cornerness
+% descType.name = 'covdet';
+% phow is simply dense SIFT applied at several resolutions
+descType.name = 'phow';
 % multi-resolution (values determine the scale of each layer)
-phowSize = [4 8 10];
+descType.size = [4 8 10];
 % step size (the lower the denser, select from {2, 4, 8, 16})
-phowStep = 8;
+descType.step = 8;
 % weak learner type
 % wlType = 'axis-aligned';
 wlType = '2-pixel';
@@ -40,7 +49,7 @@ wlType = '2-pixel';
 disp('Obtaining codebook by K-means...');
 disp('--------------------------------------------------');
 tic;
-[dataTrain, dataQuery] = codebook_kmeans(nClusters, nDescriptors, nSamples, folderName, classList, phowSize, phowStep, showImg);
+[dataTrain, dataQuery] = codebook_kmeans(nClusters, nDescriptors, nSamples, folderName, classList, showImg, descType);
 disp('--------------------------------------------------');
 toc;
 %% Build random forest by training data and predetermined parameters

@@ -16,7 +16,7 @@ showImg = false;
 % whether to show confusion matrix
 showConf = true;
 % size of descriptors for clustering
-nDescriptors = 1e5;
+nDescriptors = 1e4;
 % number of samples for train and test per class without
 % replacement (assume equal)
 nSamples = 15;
@@ -27,10 +27,19 @@ classList = dir(folderName);
 classList = {classList(3: end).name};
 % number of image classes
 nClasses = length(classList);
+% criteria for obtaining descriptors
+% SIFT is to detect and describe local features in images
+% descType.name = 'sift';
+% extracts a dense set of SIFT features from image
+% descType.name = 'dsift';
+% detects upright scale and translation covariant features based on the Difference of Gaussian (DoG) cornerness
+% descType.name = 'covdet';
+% phow is simply dense SIFT applied at several resolutions
+descType.name = 'phow';
 % multi-resolution (values determine the scale of each layer)
-phowSize = [4 8 10];
+descType.size = [4 8 10];
 % step size (the lower the denser, select from {2, 4, 8, 16})
-phowStep = 8;
+descType.step = 8;
 % weak learner type
 % wlType = 'axis-aligned';
 wlType = '2-pixel';
@@ -38,7 +47,7 @@ wlType = '2-pixel';
 disp('Obtaining codebook by random forest...');
 disp('--------------------------------------------------');
 tic;
-[dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folderName, classList, phowSize, phowStep, showImg, wlType);
+[dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folderName, classList, showImg, wlType, descType);
 disp('--------------------------------------------------');
 toc;
 %% Build random forest by training data and predetermined parameters

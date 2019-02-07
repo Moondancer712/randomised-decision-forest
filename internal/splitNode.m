@@ -74,14 +74,22 @@ switch wlType
         for n = 1:iter
             % pick two random different dimension
             dim = randperm((D - 1), 2);
+%             % get min and max value of both dimensions
+%             dMin1 = single(min(data(:, dim(1)))) + eps;
+%             dMin2 = single(min(data(:, dim(2)))) + eps;
+%             dMax1 = single(max(data(:, dim(1)))) - eps;
+%             dMax2 = single(max(data(:, dim(2)))) - eps;
+%             % find range of subtraction
+%             dMin = min(dMin1, dMin2);
+%             dMax = max(dMax1, dMax2);
+%             % pick a random value within the range as threshold
+%             t = dMin + rand * (dMax - dMin);
+%             % obtain index of left nodes
+%             idx_ = data(:, dim(1)) - data(:, dim(2)) < t;
+            diff = data(:, dim(1)) - data(:, dim(2));
             % get min and max value of both dimensions
-            dMin1 = single(min(data(:, dim(1)))) + eps;
-            dMin2 = single(min(data(:, dim(2)))) + eps;
-            dMax1 = single(max(data(:, dim(1)))) - eps;
-            dMax2 = single(max(data(:, dim(2)))) - eps;
-            % find range of subtraction
-            dMin = min(dMin1, dMin2);
-            dMax = max(dMax1, dMax2);
+            dMin = min(diff);
+            dMax = max(diff);
             % pick a random value within the range as threshold
             t = dMin + rand * (dMax - dMin);
             % obtain index of left nodes

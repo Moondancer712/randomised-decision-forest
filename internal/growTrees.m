@@ -14,7 +14,7 @@ frac = 1 - 1/exp(1); % Bootstrap sampling fraction: 1 - 1/e (63.2%)
 
 cnt_total = 1;
 [labels,~] = unique(data(:,end));
-% tree(param.num) = struct();
+tree(param.num) = struct();
 for T = 1:param.num
     fprintf('Training tree: %i\n', T)
     % Bootstraping aggregating

@@ -1,4 +1,4 @@
-function [dataTrain, dataQuery] = codebook_kmeans(nClusters, nDescriptors, nSamples, folderName, classList, phowSize, phowStep, showImg)
+function [dataTrain, dataQuery] = codebook_kmeans(nClusters, nDescriptors, nSamples, folderName, classList, showImg, descType)
 % Function:
 %   - generate visual codebook by k-means method
 %
@@ -9,9 +9,8 @@ function [dataTrain, dataQuery] = codebook_kmeans(nClusters, nDescriptors, nSamp
 %  replacement (assume equal)
 %   - folderName: image directory
 %   - classList: category name
-%   - phowSize: values determine the scale of each layer
-%   - phowStep: step size (the lower the denser)
 %   - showImg: show image or not
+%   - descType: criteria for obtaining descriptors
 %
 % OutputArg(s):
 %   - dataTrain: vectorised training data with label
@@ -31,7 +30,7 @@ nClasses = length(classList);
 dataType = 'train';
 disp('Loading training images...');
 tic;
-[descTrain, imgIdxTrain] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, dataType);
+[descTrain, imgIdxTrain] = feature_detection(classList, folderName, nSamples, dataType, descType);
 toc;
 %% Build visual vocabulary (codebook) for 'Bag-of-Words' method
 disp('Building visual codebook...');
@@ -62,7 +61,7 @@ toc;
 dataType = 'test';
 disp('Loading testing images...');
 tic;
-[descTest, imgIdxTest] = feature_detection(classList, folderName, nSamples, phowSize, phowStep, dataType);
+[descTest, imgIdxTest] = feature_detection(classList, folderName, nSamples, dataType, descType);
 toc;
 %% Testing data: assign patch descriptors to the visual codebook (vector quantisation)
 dataType = 'test';
