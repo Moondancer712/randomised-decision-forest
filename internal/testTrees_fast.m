@@ -25,6 +25,7 @@ function label = testTrees_fast(data, tree, wlType)
 
 label = zeros(1, length(tree));
 idx = cell(1, length(tree));
+% N = size(data, 1);
 switch wlType
     case 'axis-aligned'
         for T = 1:length(tree)
@@ -57,6 +58,28 @@ switch wlType
                     continue;
                 end
                 idx_left = data(idx{n},tree(T).node(n).dim(1)) - data(idx{n},tree(T).node(n).dim(2)) < tree(T).node(n).t;
+                idx{n*2} = idx{n}(idx_left');
+                idx{n*2+1} = idx{n}(~idx_left');
+            end
+        end
+    case 'linear'
+        for T = 1:length(tree)
+            idx{1} = 1:size(data,1);
+            for n = 1:length(tree(T).node)
+                % dimensions in pairs, check the first entry for leaf
+                isLeaf = ~tree(T).node(n).dim(1);
+                if isLeaf
+                    leaf_idx = tree(T).node(n).leaf_idx;
+                    if ~isempty(tree(T).leaf(leaf_idx))
+                        label(idx{n}',T) = tree(T).leaf(leaf_idx).label;
+                    end
+                    continue;
+                end
+                t = tree(T).node(n).t;
+                dim1 = tree(T).node(n).dim(1);
+                dim2 = tree(T).node(n).dim(2);
+%                 idx_left = [data(idx{n},tree(T).node(n).dim), ones(N, 1)] *  < 0;
+                idx_left = data(idx{n},dim1)*t(1) + data(idx{n},dim2)*t(2) + ones(size(data(idx{n},:),1), 1)*t(3) < 0;
                 idx{n*2} = idx{n}(idx_left');
                 idx{n*2+1} = idx{n}(~idx_left');
             end

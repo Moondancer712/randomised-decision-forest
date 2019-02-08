@@ -44,7 +44,8 @@ descType.size = [4 8 10];
 descType.step = 8;
 % weak learner type
 % wlType = 'axis-aligned';
-wlType = '2-pixel';
+% wlType = '2-pixel';
+wlType = 'linear';
 %% Obtain codebook by K-means
 disp('Obtaining codebook by K-means...');
 disp('--------------------------------------------------');

@@ -42,7 +42,8 @@ descType.size = [4 8 10];
 descType.step = 8;
 % weak learner type
 % wlType = 'axis-aligned';
-wlType = '2-pixel';
+% wlType = '2-pixel';
+wlType = 'linear';
 %% Obtain codebook by random forest
 disp('Obtaining codebook by random forest...');
 disp('--------------------------------------------------');
