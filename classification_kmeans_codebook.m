@@ -5,7 +5,8 @@ rf.splitNum = 5;
 % number of layers
 rf.depth = 5;
 % criteria in split decision (information gain)
-rf.split = 'IG';
+% rf.split = 'IG';
+rf.split = 'IGR';
 % number of trees
 rf.num = 50;
 %% Initialisation
@@ -43,9 +44,9 @@ descType.size = [4 8 10];
 % step size (the lower the denser, select from {2, 4, 8, 16})
 descType.step = 8;
 % weak learner type
-% wlType = 'axis-aligned';
+wlType = 'axis-aligned';
 % wlType = '2-pixel';
-wlType = 'linear';
+% wlType = 'linear';
 %% Obtain codebook by K-means
 disp('Obtaining codebook by K-means...');
 disp('--------------------------------------------------');

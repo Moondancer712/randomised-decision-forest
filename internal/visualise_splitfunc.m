@@ -1,4 +1,5 @@
-function visualise_splitfunc(idx_best,data,dim,t,ig_best,iter) % Draw the split line
+function visualise_splitfunc(idx_best,data,dim,t,target,iter) % Draw the split line
+% target can be information gain and information gain ratio
 r = [-1.5 1.5]; % Data range
 
 subplot(2,2,1);
@@ -20,9 +21,25 @@ hold on;
 plot(data(data(:,end)==3,1), data(data(:,end)==3,2), 'o', 'MarkerFaceColor', [.3 .3 .9], 'MarkerEdgeColor','k');
 
 if ~iter
-    title(sprintf('BEST Split [%i]. IG = %4.2f',dim,ig_best));
+    switch target.name
+        case 'IG'
+            title(sprintf('BEST Split [%i]. IG = %4.2f',dim,target.value));
+        case 'IGR'
+            title(sprintf('BEST Split [%i]. IGR = %4.2f',dim,target.value));
+        otherwise
+            % mode not supported yet
+            error('Entered mode not supported yet.');
+    end
 else
-    title(sprintf('Trial %i - Split [%i]. IG = %4.2f',iter,dim,ig_best));
+    switch target.name
+        case 'IG'
+            title(sprintf('Trial %i - Split [%i]. IG = %4.2f',iter,dim,target.value));
+        case 'IGR'
+            title(sprintf('Trial %i - Split [%i]. IGR = %4.2f',iter,dim,target.value));
+        otherwise
+            % mode not supported yet
+            error('Entered mode not supported yet.');
+    end
 end
 axis([r(1) r(2) r(1) r(2)]);
 hold off;
