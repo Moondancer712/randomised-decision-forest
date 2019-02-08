@@ -52,16 +52,11 @@ idx_best = [];
 switch wlType
     case 'axis-aligned'
         for n = 1:iter
-            % ensure successful split
-            isSplit = false;
-            while ~isSplit
-                dim = randi(D-1); % Pick one random dimension
-                d_min = single(min(data(:,dim))) + eps; % Find the data range of this dimension
-                d_max = single(max(data(:,dim))) - eps;
-                t = d_min + rand*((d_max-d_min)); % Pick a random value within the range as threshold
-                idx_ = data(:,dim) < t;
-                isSplit = ~isequal(idx_, zeros(size(idx_))) && ~isequal(idx_, ones(size(idx_)));
-            end
+            dim = randi(D-1); % Pick one random dimension
+            d_min = single(min(data(:,dim))) + eps; % Find the data range of this dimension
+            d_max = single(max(data(:,dim))) - eps;
+            t = d_min + rand*((d_max-d_min)); % Pick a random value within the range as threshold
+            idx_ = data(:,dim) < t;
             
             ig = getIG(data,idx_); % Calculate information gain
             
@@ -77,33 +72,28 @@ switch wlType
         end
     case '2-pixel'
         for n = 1:iter
-            % ensure successful split
-            isSplit = false;
-            while ~isSplit
-                % pick two random different dimension
-                dim = randperm((D - 1), 2);
-%                 % get min and max value of both dimensions
-%                 dMin1 = single(min(data(:, dim(1)))) + eps;
-%                 dMin2 = single(min(data(:, dim(2)))) + eps;
-%                 dMax1 = single(max(data(:, dim(1)))) - eps;
-%                 dMax2 = single(max(data(:, dim(2)))) - eps;
-%                 % find range of subtraction
-%                 dMin = min(dMin1, dMin2);
-%                 dMax = max(dMax1, dMax2);
-%                 % pick a random value within the range as threshold
-%                 t = dMin + rand * (dMax - dMin);
-%                 % obtain index of left nodes
-%                 idx_ = data(:, dim(1)) - data(:, dim(2)) < t;
-                diff = data(:, dim(1)) - data(:, dim(2));
-                % get min and max value of both dimensions
-                dMin = min(diff);
-                dMax = max(diff);
-                % pick a random value within the range as threshold
-                t = dMin + rand * (dMax - dMin);
-                % obtain index of left nodes
-                idx_ = data(:, dim(1)) - data(:, dim(2)) < t;
-                isSplit = ~isequal(idx_, zeros(size(idx_))) && ~isequal(idx_, ones(size(idx_)));
-            end
+            % pick two random different dimension
+            dim = randperm((D - 1), 2);
+            %                 % get min and max value of both dimensions
+            %                 dMin1 = single(min(data(:, dim(1)))) + eps;
+            %                 dMin2 = single(min(data(:, dim(2)))) + eps;
+            %                 dMax1 = single(max(data(:, dim(1)))) - eps;
+            %                 dMax2 = single(max(data(:, dim(2)))) - eps;
+            %                 % find range of subtraction
+            %                 dMin = min(dMin1, dMin2);
+            %                 dMax = max(dMax1, dMax2);
+            %                 % pick a random value within the range as threshold
+            %                 t = dMin + rand * (dMax - dMin);
+            %                 % obtain index of left nodes
+            %                 idx_ = data(:, dim(1)) - data(:, dim(2)) < t;
+            diff = data(:, dim(1)) - data(:, dim(2));
+            % get min and max value of both dimensions
+            dMin = min(diff);
+            dMax = max(diff);
+            % pick a random value within the range as threshold
+            t = dMin + rand * (dMax - dMin);
+            % obtain index of left nodes
+            idx_ = data(:, dim(1)) - data(:, dim(2)) < t;
             
             ig = getIG(data,idx_); % Calculate information gain
             
