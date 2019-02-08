@@ -1,14 +1,14 @@
 clear; close all; clc; ticKmeans = tic;
-%% Parameters of RF (for each tree)
+%% Parameters of classifier RF (for each tree)
 % number of candidate weak learners 
-rf.splitNum = 5;
+clsRf.splitNum = 10;
 % number of layers
-rf.depth = 5;
+clsRf.depth = 10;
 % criteria in split decision (information gain)
-% rf.split = 'IG';
-rf.split = 'IGR';
+rf.split = 'IG';
+% clsRf.split = 'IGR';
 % number of trees
-rf.num = 50;
+clsRf.num = 50;
 %% Initialisation
 % show decision histogram or not
 showHist = false;
@@ -19,7 +19,7 @@ showConf = true;
 % number of clusters (size of codebook)
 nClusters = 256;
 % size of descriptors for clustering
-nDescriptors = 1e4;
+nDescriptors = 1e5;
 % number of samples for train and test per class without
 % replacement (assume equal)
 nSamples = 15;
@@ -58,7 +58,7 @@ toc;
 disp('==================================================');
 disp('Building random forest...');
 tic;
-forest = growTrees(dataTrain, rf, wlType);
+forest = growTrees(dataTrain, clsRf, wlType);
 toc;
 %% Classify the training data by random forest
 disp('==================================================');

@@ -1,14 +1,24 @@
 clear; close all; clc; ticRf = tic;
-%% Parameters of RF (for each tree)
+%% Parameters of codebook RF (for each tree)
 % number of candidate weak learners 
-rf.splitNum = 5;
+codeRf.splitNum = 5;
 % number of layers
-rf.depth = 5;
+codeRf.depth = 5;
 % criteria in split decision (information gain)
-% rf.split = 'IG';
-rf.split = 'IGR';
+codeRf.split = 'IG';
+% codeRf.split = 'IGR';
 % number of trees
-rf.num = 10;
+codeRf.num = 20;
+%% Parameters of classifier RF (for each tree)
+% number of candidate weak learners 
+clsRf.splitNum = 10;
+% number of layers
+clsRf.depth = 10;
+% criteria in split decision (information gain)
+clsRf.split = 'IG';
+% clsRf.split = 'IGR';
+% number of trees
+clsRf.num = 50;
 %% Initialisation
 % show decision histogram or not
 showHist = false;
@@ -17,7 +27,7 @@ showImg = false;
 % whether to show confusion matrix
 showConf = true;
 % size of descriptors for clustering
-nDescriptors = 1e4;
+nDescriptors = 1e5;
 % number of samples for train and test per class without
 % replacement (assume equal)
 nSamples = 15;
@@ -49,14 +59,14 @@ wlType = 'axis-aligned';
 disp('Obtaining codebook by random forest...');
 disp('--------------------------------------------------');
 tic;
-[dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folderName, classList, showImg, wlType, descType);
+[dataTrain, dataQuery] = codebook_rf(codeRf, nDescriptors, nSamples, folderName, classList, showImg, wlType, descType);
 disp('--------------------------------------------------');
 toc;
 %% Build random forest by training data and predetermined parameters
 disp('==================================================');
 disp('Building random forest...');
 tic;
-forest = growTrees(dataTrain, rf, wlType);
+forest = growTrees(dataTrain, clsRf, wlType);
 toc;
 %% Classify the training data by random forest
 disp('==================================================');
