@@ -26,6 +26,8 @@ if ~iter
             title(sprintf('BEST Split [%i]. IG = %4.2f',dim,target.value));
         case 'IGR'
             title(sprintf('BEST Split [%i]. IGR = %4.2f',dim,target.value));
+        case 'Gini'
+            title(sprintf('BEST Split [%i]. Gini impurity = %4.2f',dim,target.value));
         otherwise
             % mode not supported yet
             error('Entered mode not supported yet.');
@@ -36,6 +38,8 @@ else
             title(sprintf('Trial %i - Split [%i]. IG = %4.2f',iter,dim,target.value));
         case 'IGR'
             title(sprintf('Trial %i - Split [%i]. IGR = %4.2f',iter,dim,target.value));
+        case 'Gini'
+            title(sprintf('Trial %i - Split [%i]. Gini = %4.2f',iter,dim,target.value));
         otherwise
             % mode not supported yet
             error('Entered mode not supported yet.');

@@ -37,7 +37,7 @@ function [node, nodeL, nodeR] = splitNode(data, node, param, wlType)
 %
 % Author & Date: Yang (i@snowztail.com) - 05 Feb 19
 
-visualise = 0;
+visualise = false;
 
 % initilise child nodes
 iter = param.splitNum;
@@ -56,9 +56,10 @@ idx = node.idx;
 data = data(idx,:);
 [N,D] = size(data);
 
-% initialise the best information gain as invalid
+% initialise the value of target functions as invalid
 ig_best = -inf; 
 igr_best = -inf; 
+gini_best = -inf;
 idx_best = [];
 
 switch wlType
@@ -85,24 +86,13 @@ switch wlType
                     % gain ratio can reduce the tendency of choosing nodes
                     % with more leaves
                     igr = getIGR(data, idxCurr, wlType); 
+                case 'Gini'
+                    % calculate Gini impurity (a low-complexity no-log
+                    % approximation of information gain)
+                    gini = getGini(idxCurr); 
                 otherwise
                     % mode not supported yet
                     error('Entered mode not supported yet.');
-            end
-            
-            if visualise
-                target.name = param.split;
-                switch param.split
-                    case 'IG'
-                        target.value = ig;
-                    case 'IGR'
-                        target.value = igr;
-                    otherwise
-                        % mode not supported yet
-                        error('Entered mode not supported yet.');
-                end
-                visualise_splitfunc(idxCurr,data,dim,t,target,n);
-                pause();
             end
             
             % check that children node are not empty
@@ -112,6 +102,8 @@ switch wlType
                         [node, ig_best, idx_best] = updateIG(node,ig_best,ig,t,idxCurr,dim,idx_best);
                     case 'IGR'
                         [node, igr_best, idx_best] = updateIGR(node,igr_best,igr,t,idxCurr,dim,idx_best);
+                    case 'Gini'
+                        [node, gini_best, idx_best] = updateGini(node,gini_best,gini,t,idxCurr,dim,idx_best);
                     otherwise
                         % mode not supported yet
                         error('Entered mode not supported yet.');
@@ -144,24 +136,13 @@ switch wlType
                     % gain ratio can reduce the tendency of choosing nodes
                     % with more leaves
                     igr = getIGR(data, idxCurr, wlType); 
+                case 'Gini'
+                    % calculate Gini impurity (a low-complexity no-log
+                    % approximation of information gain)
+                    gini = getGini(idxCurr); 
                 otherwise
                     % mode not supported yet
                     error('Entered mode not supported yet.');
-            end
-            
-            if visualise
-                target.name = param.split;
-                switch param.split
-                    case 'IG'
-                        target.value = ig;
-                    case 'IGR'
-                        target.value = igr;
-                    otherwise
-                        % mode not supported yet
-                        error('Entered mode not supported yet.');
-                end
-                visualise_splitfunc(idxCurr,data,dim,t,target,n);
-                pause();
             end
             
             % check that children node are not empty
@@ -171,6 +152,8 @@ switch wlType
                         [node, ig_best, idx_best] = updateIG(node,ig_best,ig,t,idxCurr,dim,idx_best);
                     case 'IGR'
                         [node, igr_best, idx_best] = updateIGR(node,igr_best,igr,t,idxCurr,dim,idx_best);
+                    case 'Gini'
+                        [node, gini_best, idx_best] = updateGini(node,gini_best,gini,t,idxCurr,dim,idx_best);
                     otherwise
                         % mode not supported yet
                         error('Entered mode not supported yet.');
@@ -202,24 +185,13 @@ switch wlType
                     % gain ratio can reduce the tendency of choosing nodes
                     % with more leaves
                     igr = getIGR(data, idxCurr, wlType); 
+                case 'Gini'
+                    % calculate Gini impurity (a low-complexity no-log
+                    % approximation of information gain)
+                    gini = getGini(idxCurr); 
                 otherwise
                     % mode not supported yet
                     error('Entered mode not supported yet.');
-            end
-            
-            if visualise
-                target.name = param.split;
-                switch param.split
-                    case 'IG'
-                        target.value = ig;
-                    case 'IGR'
-                        target.value = igr;
-                    otherwise
-                        % mode not supported yet
-                        error('Entered mode not supported yet.');
-                end
-                visualise_splitfunc(idxCurr,data,dim,t,target,n);
-                pause();
             end
             
             % check that children node are not empty
@@ -229,6 +201,8 @@ switch wlType
                         [node, ig_best, idx_best] = updateIG(node,ig_best,ig,t,idxCurr,dim,idx_best);
                     case 'IGR'
                         [node, igr_best, idx_best] = updateIGR(node,igr_best,igr,t,idxCurr,dim,idx_best);
+                    case 'Gini'
+                        [node, gini_best, idx_best] = updateGini(node,gini_best,gini,t,idxCurr,dim,idx_best);
                     otherwise
                         % mode not supported yet
                         error('Entered mode not supported yet.');
@@ -244,17 +218,24 @@ end
 nodeL.idx = idx(idx_best);
 nodeR.idx = idx(~idx_best);
 
+% not supported for 'Caltech' data yet
 if visualise
-    visualise_splitfunc(idx_best,data,dim,t,target,0);
+    target.name = param.split;
     switch param.split
         case 'IG'
+            target.value = ig_best;
             fprintf('Information gain = %f. \n',ig_best);
         case 'IGR'
-            fprintf('Information gain ratio = %f. \n',target);
+            target.value = igr_best;
+            fprintf('Information gain ratio = %f. \n',igr_best);
+        case 'Gini'
+            target.value = gini_best;
+            fprintf('Gini impurity = %f. \n',gini_best);
         otherwise
             % mode not supported yet
             error('Entered mode not supported yet.');
     end
+    visualise_splitfunc(idx_best,data,dim,t,target,0);
     pause();
 end
 
@@ -327,6 +308,19 @@ H = -log2(probL) * probL - log2(probR) * probR;
 igr = ig / H;
 end
 
+% Gini impurity is a measure of how often a randomly chosen element from 
+% the set would be incorrectly labeled if it was randomly labeled according
+% to the distribution of labels in the subset (a low-complexity no-log 
+% approximation of information gain)
+% ratio)
+function gini = getGini(idx)
+% probabilities of the current layer to go left or right
+probL = sum(idx) / length(idx);
+probR = 1 - probL;
+% compute Gini impurity
+gini = 1 - probL ^ 2 - probR ^ 2;
+end
+
 % entropy
 function H = getE(X) 
 cdist= histc(X(:,1:end), unique(X(:,end))) + 1;
@@ -345,9 +339,20 @@ if ig > ig_best
 end
 end
 
-function [node, igr_best, idx_best] = updateIGR(node,igr_best,igr,t,idx,dim,idx_best) % Update information gain
+% Update information gain ratio
+function [node, igr_best, idx_best] = updateIGR(node,igr_best,igr,t,idx,dim,idx_best) 
 if igr > igr_best
     igr_best = igr;
+    node.t = t;
+    node.dim = dim;
+    idx_best = idx;
+end
+end
+
+% Update Gini impurity
+function [node, gini_best, idx_best] = updateGini(node,gini_best,gini,t,idx,dim,idx_best)
+if gini > gini_best
+    gini_best = gini;
     node.t = t;
     node.dim = dim;
     idx_best = idx;

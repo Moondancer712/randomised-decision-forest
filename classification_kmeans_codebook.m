@@ -1,14 +1,15 @@
 clear; close all; clc; ticKmeans = tic;
 %% Parameters of classifier RF (for each tree)
 % number of candidate weak learners 
-clsRf.splitNum = 10;
+clsRf.splitNum = 5;
 % number of layers
-clsRf.depth = 10;
+clsRf.depth = 5;
 % criteria in split decision (information gain)
-rf.split = 'IG';
+% clsRf.split = 'IG';
 % clsRf.split = 'IGR';
+clsRf.split = 'Gini';
 % number of trees
-clsRf.num = 50;
+clsRf.num = 20;
 %% Initialisation
 % show decision histogram or not
 showHist = false;
