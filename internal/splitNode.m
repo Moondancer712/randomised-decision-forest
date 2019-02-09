@@ -1,4 +1,4 @@
-function [node, nodeL, nodeR] = splitNode(data, node, param, wlType)
+function [node, nodeL, nodeR] = splitNode(data, node, param, label, wlType)
 % Function:
 %   - generate visual codebook by randomised decision forest
 %
@@ -15,6 +15,7 @@ function [node, nodeL, nodeR] = splitNode(data, node, param, wlType)
 %       - node.dim: feature dimension of split function
 %       - node.prob: class distribution of data in this node
 %       - node.leaf_idx: leaf node index (empty if it is not a leaf node)
+%   - label: index of data label 
 %   - wlType: type of the weak learner (now support 'axis-aligned' and '2-pixel' test)
 %
 % OutputArg(s):
@@ -44,11 +45,22 @@ iter = param.splitNum;
 nodeL = struct('idx',[],'t',nan,'dim',0,'prob',[]);
 nodeR = struct('idx',[],'t',nan,'dim',0,'prob',[]);
 
-% make this node a leaf if has less than 5 data points
-if length(node.idx) <= 5 
+% make this node a leaf if has less than sparsity data points
+if length(node.idx) <= param.sparsity 
     node.t = nan;
     node.dim = 0;
     return;
+end
+
+% make this node a leaf if it is very confident in labeling
+prob = reshape(histc(data(node.idx,end),label),[],1);
+prob = prob/sum(prob);
+for iProb = 1: size(prob,1)
+    if prob(iProb) >= param.confidence
+        node.t = nan;
+        node.dim = 0;
+        return;
+    end
 end
 
 % pass data

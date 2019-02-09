@@ -10,6 +10,11 @@ clsRf.depth = 5;
 clsRf.split = 'Gini';
 % number of trees
 clsRf.num = 20;
+% regard a node as leaf if has less than sparsity data points
+clsRf.sparsity = 5;
+% regard a node as leaf if the confidence of classification is greater than
+% this probability
+clsRf.confidence = 0.9;
 %% Initialisation
 % show decision histogram or not
 showHist = false;
@@ -20,7 +25,7 @@ showConf = true;
 % number of clusters (size of codebook)
 nClusters = 256;
 % size of descriptors for clustering
-nDescriptors = 1e5;
+nDescriptors = 1e4;
 % number of samples for train and test per class without
 % replacement (assume equal)
 nSamples = 15;
@@ -31,6 +36,8 @@ classList = dir(folderName);
 classList = {classList(3: end).name};
 % number of image classes
 nClasses = length(classList);
+% obtain index of data label
+label = 1: nClasses;
 % criteria for obtaining descriptors
 % SIFT is to detect and describe local features in images
 % descType.name = 'sift';
@@ -59,7 +66,7 @@ toc;
 disp('==================================================');
 disp('Building random forest...');
 tic;
-forest = growTrees(dataTrain, clsRf, wlType);
+forest = growTrees(dataTrain, clsRf, label, wlType);
 toc;
 %% Classify the training data by random forest
 disp('==================================================');

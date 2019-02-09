@@ -1,4 +1,4 @@
-function tree = growTrees(data,param,wlType)
+function tree = growTrees(data,param,label,wlType)
 
 %        Base               Each node stores:
 %         1                   trees.idx       - data (index only) which split into this node
@@ -26,7 +26,7 @@ for T = 1:param.num
     
     % Split Nodes
     for n = 1:2^(param.depth-1)-1
-        [tree(T).node(n),tree(T).node(n*2),tree(T).node(n*2+1)] = splitNode(data,tree(T).node(n),param,wlType);
+        [tree(T).node(n),tree(T).node(n*2),tree(T).node(n*2+1)] = splitNode(data,tree(T).node(n),param,label,wlType);
     end
     
     % Leaf Nodes

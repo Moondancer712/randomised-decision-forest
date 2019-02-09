@@ -32,6 +32,8 @@ function [dataTrain, dataQuery] = codebook_rf(rf, nDescriptors, nSamples, folder
 
 % number of classes
 nClasses = length(classList);
+% obtain index of data label
+label = 1: nClasses;
 %% Training data: feature detection and descriptors extraction
 dataType = 'train';
 disp('Loading training images...');
@@ -54,7 +56,7 @@ toc;
 disp('Clustering data by random forest...');
 tic;
 % develop RF based on selected descriptors and predetermined parameters
-forest = growTrees(descSel', rf, wlType);
+forest = growTrees(descSel', rf, label, wlType);
 % number of clusters
 nClusters = size(forest(1).prob,1);
 toc;
